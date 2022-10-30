@@ -1,0 +1,38 @@
+
+name: DotNet 6 - Docker build 
+
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+    - 'src/**'
+    - '.github/workflows/dotnet6-docker-build.yml'
+    - '.devcontainer'
+
+jobs:
+  build:
+    env:
+      username: stvansolano
+      image: dotnet6-dev
+      tag: preview #${{ github.sha }}
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: |
+        docker build -f .devcontainer/net6.Dockerfile . -t stvansolano/dotnet6-dev:preview
+
+    - name: Using .NET 6 version (Docker Run Action)
+      uses: addnab/docker-run-action@v3
+      with:
+        # Image
+        image: stvansolano/dotnet6-dev:preview
+        run: |
+          echo "Hello, from Docker world!!!"
+          echo "This is using .Net version:"
+          dotnet --version
+
+        # Use a specific shell
+        #shell: # optional, default is sh

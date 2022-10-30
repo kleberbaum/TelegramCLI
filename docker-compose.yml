@@ -1,0 +1,27 @@
+# docker-compose up --build -d
+
+version: "3.7"
+services:
+  dotnet6-preview:
+    build: 
+      dockerfile: .devcontainer/net6.Dockerfile
+      context: .
+    ports:
+      - 80:80
+    links: 
+      - db
+    depends_on: 
+      - db
+  
+  db:
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: example_123
+    image: microsoft/mssql-server-linux
+    restart: always
+    healthcheck:
+        test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P example_123 -Q 'SELECT 1' || exit 1"]
+        interval: 10s
+        retries: 10
+        start_period: 10s
+        timeout: 3s     
